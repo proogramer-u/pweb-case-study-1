@@ -1,0 +1,6 @@
+Options -Indexes
+<FilesMatch "^(composer\.(json|lock)|\.env.*)$">
+Require all denied
+</FilesMatch>
+# Never expose repository history from a document-root checkout.
+RedirectMatch 404 "(^|/)\.git(/|$)"

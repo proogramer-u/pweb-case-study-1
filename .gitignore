@@ -1,0 +1,55 @@
+# Dependensi: instal ulang menggunakan composer install.
+/vendor/
+
+# Environment dan konfigurasi lokal yang dapat memuat rahasia.
+.env
+.env.*
+!.env.example
+auth.json
+/config/local.php
+/config/*.local.php
+/config/secrets.php
+/config/credentials.php
+credentials.json
+service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Data upload pengguna; aturan keamanan dan folder kosong tetap disertakan.
+/uploads/products/*
+!/uploads/products/.htaccess
+!/uploads/products/.gitkeep
+
+# Backup/data lokal. schema.sql dan upgrade.sql tetap menjadi source proyek.
+/database/backups/
+*.sql
+!/database/schema.sql
+!/database/upgrade.sql
+kopipiro-*.csv
+kopipiro-*.xlsx
+*.sql.gz
+*.sql.zip
+*.dump
+*.sqlite
+*.sqlite3
+*.bak
+*.log
+
+# Hasil test, cache, dan catatan kerja internal.
+/tests/.runtime/
+__pycache__/
+.ruff_cache/
+.pytest_cache/
+/.superpowers/
+/docs/superpowers/
+
+# File komputer dan editor pribadi.
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

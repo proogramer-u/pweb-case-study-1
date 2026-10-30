@@ -1,0 +1,16 @@
+{
+    "name": "kopipiro/native-shop",
+    "description": "Native PHP coffee shop ordering and management",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-fileinfo": "*",
+        "phpoffice/phpspreadsheet": "^5.0"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

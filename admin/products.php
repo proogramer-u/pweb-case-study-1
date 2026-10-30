@@ -1,97 +1,78 @@
-
 <?php
-session_start();
-
-require_once "../config/database.php";
-
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-
-// Query SELECT produk tetap seperti sebelumnya.
-
-$stmt = $pdo->query(
-    "SELECT products.id,
-            products.name,
-            products.price,
-            categories.name AS category_name
-     FROM products
-     JOIN categories
-       ON products.category_id = categories.id
-     ORDER BY products.id DESC"
-);
-
-$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+require_once __DIR__ . '/../includes/bootstrap.php';
+requireRole('owner');
+$products = db(
+    '
+        SELECT
+            p.*,
+            c.name category_name
+        FROM products p
+            JOIN categories c ON c.id = p.category_id
+        ORDER BY p.id DESC
+    '
+)->fetchAll();
+pageStart('Kelola produk');
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Manage Products - Kopipiro</title>
-</head>
-<body>
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Katalog Kopipiro</p>
+        <h1>Kelola menu.</h1>
+    </div>
+    <a class="button" href="<?= url('admin/create_product.php') ?>">+ Tambah produk</a>
+</div>
+<p class="muted">Nonaktifkan menu tanpa mengubah riwayat pembelian.</p>
 
-<h1>Manage Products</h1>
+<?php if (!$products): ?>
+    <div class="empty">Belum ada produk. Tambahkan kategori, lalu produk pertama.</div>
+<?php else: ?>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Gambar</th>
+                    <th>Menu</th>
+                    <th>Kategori</th>
+                    <th>Harga</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
 
-<a href="create_product.php">+ Add Product</a>
+                <?php foreach ($products as $product): ?>
+                    <tr>
+                        <td>
+                            <img class="thumb" src="<?= imageUrl($product['image'], $product['name']) ?>" alt="<?= e($product['name']) ?>">
+                        </td>
+                        <td><?= e($product['name']) ?></td>
+                        <td><?= e($product['category_name']) ?></td>
+                        <td><?= rupiah($product['price']) ?></td>
+                        <td>
+                            <span class="badge"><?= $product['is_available'] ? 'Tersedia' : 'Nonaktif' ?></span>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <a href="<?= url('admin/edit_product.php?id=' . $product['id']) ?>">Edit</a>
 
-<br><br>
+                                <?php if ($product['is_available']): ?>
+                                    <form method="post" action="<?= url('admin/delete_product.php') ?>"
+                                        data-confirm="Nonaktifkan menu ini? Riwayat pembelian tetap tersimpan.">
 
-<table border="1" cellpadding="10">
-    <tr>
-        <th>ID</th>
-        <th>Product</th>
-        <th>Category</th>
-        <th>Price</th>
-        <th>Actions</th>
-    </tr>
+                                        <?= csrfField() ?>
+                                        <input type="hidden" name="id" value="<?= $product['id'] ?>">
+                                        <button class="danger" type="submit">Nonaktifkan</button>
+                                    </form>
+                                <?php endif; ?>
 
-    <?php foreach ($products as $product): ?>
-    <tr>
-        <td><?= (int)$product['id'] ?></td>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
 
-        <td>
-            <?= htmlspecialchars($product['name']) ?>
-        </td>
+            </tbody>
+        </table>
+    </div>
+<?php endif; ?>
 
-        <td>
-            <?= htmlspecialchars($product['category_name']) ?>
-        </td>
-
-        <td>
-            Rp <?= number_format(
-                $product['price'], 0, ',', '.'
-            ) ?>
-        </td>
-
-        <td>
-            <a href="edit_product.php?id=<?= (int)$product['id'] ?>">
-                Edit
-            </a>
-
-            
-<form action="delete_product.php"
-      method="POST"
-      style="display:inline"
-      onsubmit="return confirm('Are you sure you want to delete this product?')">
-
-    <input type="hidden"
-           name="id"
-           value="<?= (int)$product['id'] ?>">
-
-    <input type="hidden"
-           name="csrf_token"
-           value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-
-    <button type="submit">Delete</button>
-
-</form>
-
-    </tr>
-    <?php endforeach; ?>
-
-</table>
-
-</body>
-</html>
+<?php pageEnd(); ?>
